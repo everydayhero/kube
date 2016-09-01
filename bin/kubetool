@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+main() {
+  local kube_env="$1" && shift
+
+  if [ -z "$kube_env" ]; then
+    echo "No environment specified. Usage: kubetool [environment] [command]"
+    return 1
+  fi
+
+  export AWS_PROFILE="$kube_env"
+  export KOPS_STATE_STORE="s3://edh-kube-$kube_env"
+
+  case "$1" in
+  init)
+    kops export kubecfg
+    ;;
+  *)
+    kops "$@"
+    ;;
+  esac
+}
+
+main "$@"
